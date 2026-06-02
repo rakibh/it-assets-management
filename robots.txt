@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /Core/
+Disallow: /lang/
+Disallow: /Modules/
+Disallow: /storage/
+Disallow: /fallback/
+Disallow: /views/
+Disallow: /index.php?route=login
+Disallow: /index.php?route=admin_tools

@@ -1,0 +1,36 @@
+# IT Management System - Security & Routing
+
+# Disable directory browsing
+Options -Indexes
+
+# Protect sensitive files
+<FilesMatch "^\.env|install\.sql|prd\.txt|README\.md|GEMINI\.md|MEMORY\.md|PROGRESS\.md|COMPLETE_SETUP_GUIDE\.md|DOCUMENTATION\.md|FINAL_PRD\.md$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Protect sensitive folders
+# Allow storage/uploads but block others
+RewriteRule ^(Core|Modules|lang|views) - [F,L,NC]
+RewriteRule ^storage/(backups|logs|TEMP) - [F,L,NC]
+
+# Routing
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /it_assets_management/
+    
+    # Redirect Trailing Slashes If Not A Directory...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Handle Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>

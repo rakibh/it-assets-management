@@ -1,0 +1,14 @@
+# Ignore storage contents but keep the directories
+storage/backups/*
+storage/logs/*
+storage/uploads/equipment/*
+storage/uploads/profiles/*
+storage/uploads/warranty/*
+storage/uploads/tasks/*
+
+# Allow .gitkeep files
+!storage/**/.gitkeep
+
+# Ignore environment files
+.env
+.env.example
