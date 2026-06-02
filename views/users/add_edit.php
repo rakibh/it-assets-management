@@ -15,16 +15,39 @@ $isEdit = $data['isEdit'];
             
             <div class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- First Name -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">First Name (Optional)</label>
+                        <input type="text" x-model="formData.first_name"
+                            class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    </div>
+
+                    <!-- Last Name -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Last Name (Optional)</label>
+                        <input type="text" x-model="formData.last_name"
+                            class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Email Address (Optional)</label>
+                    <input type="email" x-model="formData.email"
+                        class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Username -->
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Username</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Username <span class="text-red-500">*</span></label>
                         <input type="text" x-model="formData.username" required
                             class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all">
                     </div>
 
                     <!-- Employee ID -->
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Employee ID</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Employee ID <span class="text-red-500">*</span></label>
                         <input type="text" x-model="formData.employee_id" required
                             class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all">
                     </div>
@@ -33,7 +56,7 @@ $isEdit = $data['isEdit'];
                 <!-- Password -->
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-2">
-                        <?php echo $isEdit ? 'New Password (leave blank to keep current)' : 'Password'; ?>
+                        <?php echo $isEdit ? 'New Password (leave blank to keep current)' : 'Password'; ?> <span class="text-red-500" x-show="!formData.user_id">*</span>
                     </label>
                     <div class="relative">
                         <input :type="showPassword ? 'text' : 'password'" x-model="formData.password" <?php echo $isEdit ? '' : 'required'; ?>
@@ -85,6 +108,9 @@ function userForm() {
     return {
         formData: {
             user_id: '<?php echo $user['id'] ?? ''; ?>',
+            first_name: '<?php echo $user['first_name'] ?? ''; ?>',
+            last_name: '<?php echo $user['last_name'] ?? ''; ?>',
+            email: '<?php echo $user['email'] ?? ''; ?>',
             username: '<?php echo $user['username'] ?? ''; ?>',
             employee_id: '<?php echo $user['employee_id'] ?? ''; ?>',
             password: '',
