@@ -90,11 +90,4 @@ The system captures all errors and high-level events. Logs are automatically cle
 ### 5.3 Optimizing Performance
 If the system feels slow, use the "Optimize Database" tool in *Admin Tools* to run maintenance on all MySQL tables.
 
----
 
-## 🌐 6. Internationalization
-The system supports multiple languages (English/Bengali). Translations are managed in `lang/*.php`. The user's preference is saved to their profile and persists across sessions.
-
----
-**Document Version:** 2.0.0  
-**Contact:** System Administrator  

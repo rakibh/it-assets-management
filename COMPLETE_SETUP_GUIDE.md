@@ -116,6 +116,4 @@ The system is designed to be reliable in offline environments.
 *   **Upload Failures:** Check PHP's `upload_max_filesize` and `post_max_size` in `php.ini` to match the settings defined in the app.
 *   **Blank Charts:** Ensure your browser is not blocking the local JavaScript files in the `fallback/` folder.
 
----
-**Version:** 2.0.0 (Stable)
-**Date:** May 2026
+
