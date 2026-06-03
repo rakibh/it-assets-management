@@ -119,7 +119,14 @@ class UserController
 
             return ['success' => true, 'message' => $msg, 'redirect' => 'index.php?route=list_users'];
         } catch (Exception $e) {
-            return ['success' => false, 'message' => $e->getMessage()];
+            $msg = $e->getMessage();
+            if (strpos($msg, 'SQLSTATE[23000]') !== false && strpos($msg, '1062') !== false) {
+                // Prettier duplicate entry message
+                if (preg_match("/Duplicate entry '(.*)' for key '(.*)'/", $msg, $matches)) {
+                    $msg = "Duplicate entry '{$matches[1]}' for '{$matches[2]}'";
+                }
+            }
+            return ['success' => false, 'message' => $msg];
         }
     }
 
@@ -209,7 +216,14 @@ class UserController
 
             return ['success' => true, 'message' => 'Profile updated successfully.'];
         } catch (Exception $e) {
-            return ['success' => false, 'message' => $e->getMessage()];
+            $msg = $e->getMessage();
+            if (strpos($msg, 'SQLSTATE[23000]') !== false && strpos($msg, '1062') !== false) {
+                // Prettier duplicate entry message
+                if (preg_match("/Duplicate entry '(.*)' for key '(.*)'/", $msg, $matches)) {
+                    $msg = "Duplicate entry '{$matches[1]}' for '{$matches[2]}'";
+                }
+            }
+            return ['success' => false, 'message' => $msg];
         }
     }
 

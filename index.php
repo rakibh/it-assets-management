@@ -105,11 +105,29 @@ try {
             break;
 
         case 'delete_user':
-            if (!Session::get('user_id')) { header('Location: index.php?route=login'); exit; }
+            if (!Session::get('user_id') || Session::get('role') !== 'admin') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+                exit;
+            }
             $id = (int)($_GET['id'] ?? 0);
-            (new \Modules\Auth\UserRepository())->deleteUser($id);
-            (new \Modules\Admin\AdminRepository())->logEvent('info', 'user', "User deleted (ID: $id)");
-            header('Location: index.php?route=list_users');
+            if ($id === (int)Session::get('user_id')) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Cannot delete yourself']);
+                exit;
+            }
+            try {
+                $success = (new \Modules\Auth\UserRepository())->deleteUser($id);
+                if ($success) {
+                    (new \Modules\Admin\AdminRepository())->logEvent('info', 'user', "User deleted (ID: $id)");
+                }
+                header('Content-Type: application/json');
+                echo json_encode(['success' => $success, 'message' => $success ? 'User deleted successfully' : 'User not found']);
+            } catch (Exception $e) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Failed to delete user: ' . $e->getMessage()]);
+            }
+            exit;
             break;
 
         case 'profile':

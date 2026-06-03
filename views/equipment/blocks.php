@@ -4,55 +4,59 @@ $blocks = $data['blocks'];
 ?>
 
 <div class="max-w-6xl mx-auto space-y-8" x-data="blockManager()">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Predefined Blocks</h1>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Design reusable groups of fields to standardise data entry across different equipment types.</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Create reusable groups of fields to attach to equipment types.</p>
         </div>
-        <button @click="openAddModal" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-sm font-bold shadow-xl shadow-blue-500/20 transition-all flex items-center gap-2">
-            <i class="bi bi-plus-lg"></i> Create New Block
+        <button @click="openModal('add')" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 transition-all flex items-center">
+            <i class="bi bi-plus-lg mr-2"></i> Add New Block
         </button>
     </div>
 
-    <!-- Blocks Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <?php foreach ($blocks as $block): ?>
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl font-black">
-                        <i class="bi bi-stack"></i>
-                    </div>
-                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button @click="openEditModal(<?php echo htmlspecialchars(json_encode($block)); ?>)" class="p-2 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-blue-600 rounded-xl transition-colors">
-                            <i class="bi bi-pencil-square"></i>
-                        </button>
-                        <button @click="deleteBlock(<?php echo $block['id']; ?>)" class="p-2 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-rose-600 rounded-xl transition-colors">
-                            <i class="bi bi-trash3"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1"><?php echo htmlspecialchars($block['name']); ?></h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-6"><?php echo htmlspecialchars($block['description'] ?: 'No description provided.'); ?></p>
-                
-                <div class="pt-4 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between">
-                    <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                        <?php echo count(json_decode($block['schema'], true)); ?> Fields Defined
-                    </span>
-                    <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg text-[9px] font-black uppercase tracking-tighter">System ID: #<?php echo $block['id']; ?></span>
-                </div>
-            </div>
-        <?php endforeach; ?>
-
-        <?php if (empty($blocks)): ?>
-            <div class="col-span-full py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border-2 border-dashed border-slate-100 dark:border-slate-800">
-                <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
-                    <i class="bi bi-stack text-3xl"></i>
-                </div>
-                <h3 class="text-lg font-bold text-slate-900 dark:text-white">No blocks defined yet</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 max-w-xs mx-auto mt-1">Start by creating a block to define reusable field groups for your equipment inventory.</p>
-            </div>
-        <?php endif; ?>
+    <!-- Blocks Table -->
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Block Name</th>
+                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Fields Count</th>
+                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                <?php foreach($blocks as $b): ?>
+                    <?php 
+                        $fields = json_decode($b['fields_schema'], true) ?: [];
+                        $count = count($fields);
+                    ?>
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td class="px-6 py-4">
+                            <span class="text-sm font-bold text-slate-700 dark:text-slate-200"><?php echo htmlspecialchars($b['name']); ?></span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-xs font-medium text-slate-500"><?php echo $count; ?> fields</span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex justify-end gap-2">
+                                <button @click="openModal('edit', <?php echo htmlspecialchars(json_encode($b)); ?>)" class="p-2 text-slate-400 hover:text-blue-600 transition-colors" title="View/Edit">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button @click="deleteBlock(<?php echo $b['id']; ?>, '<?php echo htmlspecialchars($b['name']); ?>')" class="p-2 text-slate-400 hover:text-red-600 transition-colors" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if(empty($blocks)): ?>
+                    <tr>
+                        <td colspan="3" class="px-6 py-12 text-center">
+                            <p class="text-slate-400 text-sm italic">No predefined blocks created yet.</p>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 
     <!-- Modal -->
@@ -87,106 +91,117 @@ $blocks = $data['blocks'];
                         <h3 class="text-lg font-bold" x-text="modalMode === 'add' ? 'Add Predefined Block' : 'Edit Block'"></h3>
                         <button @click="showModal = false" class="text-slate-400 hover:text-white"><i class="bi bi-x-lg"></i></button>
                     </div>
+                    
+                    <div class="p-8 space-y-8 overflow-y-auto flex-1">
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Block Name</label>
+                            <input type="text" x-model="formData.name" placeholder="e.g. Server Specifications" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        </div>
 
-                    <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                        <div class="space-y-8">
-                            <!-- Basic Info -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="space-y-1.5">
-                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Block Name</label>
-                                    <input type="text" x-model="formData.name" placeholder="e.g. Memory Specification"
-                                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-slate-100">
-                                </div>
-                                <div class="space-y-1.5">
-                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Description</label>
-                                    <input type="text" x-model="formData.description" placeholder="Short explanation of this block..."
-                                        class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-slate-100">
-                                </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest">Form Fields</h4>
+                                <button @click="addField()" class="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center">
+                                    <i class="bi bi-plus-circle mr-1.5"></i> Add Field
+                                </button>
                             </div>
 
-                            <!-- Form Builder -->
                             <div class="space-y-4">
-                                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fields Configuration</h4>
-                                    <button @click="addField" class="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors">
-                                        <i class="bi bi-plus-circle-fill"></i> Add Field
-                                    </button>
-                                </div>
+                                <template x-for="(field, index) in formData.fields" :key="index">
+                                    <div class="p-6 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-2xl relative group">
+                                        <button @click="removeField(index)" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors">
+                                            <i class="bi bi-x-circle-fill"></i>
+                                        </button>
 
-                                <div class="space-y-3">
-                                    <template x-for="(field, index) in formData.fields" :key="index">
-                                        <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-start gap-4 group/field">
-                                            <div class="flex-shrink-0 pt-2.5 text-slate-300 dark:text-slate-700 font-black italic text-sm" x-text="index + 1"></div>
-                                            
-                                            <div class="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4">
-                                                <!-- Field Name -->
-                                                <div class="md:col-span-4 space-y-1">
-                                                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Field Name</label>
-                                                    <input type="text" x-model="field.name" @input="updateFieldName(field)" placeholder="e.g. RAM Size"
-                                                        class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold outline-none focus:ring-1 focus:ring-blue-500 dark:text-slate-100">
-                                                </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                                            <!-- Field Label -->
+                                            <div class="md:col-span-4">
+                                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Label</label>
+                                                <input type="text" x-model="field.label" @input="updateFieldName(field)" placeholder="e.g. RAM Size"
+                                                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500">
+                                            </div>
 
-                                                <!-- Field Type -->
-                                                <div class="md:col-span-3 space-y-1">
-                                                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Type</label>
-                                                    <select x-model="field.type"
-                                                        class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold outline-none focus:ring-1 focus:ring-blue-500 dark:text-slate-100">
-                                                        <option value="text">Text</option>
-                                                        <option value="number">Number</option>
-                                                        <option value="date">Date</option>
-                                                        <option value="select">Dropdown</option>
-                                                        <option value="radio">Radio</option>
-                                                        <option value="checkbox">Checkbox (Multi)</option>
-                                                        <option value="textarea">Large Text</option>
-                                                    </select>
-                                                </div>
+                                            <!-- Field Type -->
+                                            <div class="md:col-span-3">
+                                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Type</label>
+                                                <select x-model="field.type" 
+                                                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500">
+                                                    <option value="text">Text</option>
+                                                    <option value="number">Number</option>
+                                                    <option value="email">Email</option>
+                                                    <option value="url">URL</option>
+                                                    <option value="tel">Tel (Phone)</option>
+                                                    <option value="select">Select Dropdown</option>
+                                                    <option value="radio">Radio Buttons</option>
+                                                    <option value="checkbox">Checkbox</option>
+                                                    <option value="textarea">Textarea</option>
+                                                    <option value="date">Date</option>
+                                                    <option value="time">Time</option>
+                                                </select>
+                                            </div>
 
-                                                <!-- Width -->
-                                                <div class="md:col-span-2 space-y-1">
-                                                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Width</label>
-                                                    <select x-model="field.width"
-                                                        class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold outline-none focus:ring-1 focus:ring-blue-500 dark:text-slate-100">
-                                                        <option value="100%">100%</option>
-                                                        <option value="50%">50%</option>
-                                                        <option value="33%">33%</option>
-                                                    </select>
-                                                </div>
-
-                                                <!-- Options (Only for select/radio/checkbox) -->
-                                                <div class="md:col-span-3 space-y-1" x-show="['select', 'radio', 'checkbox'].includes(field.type)">
-                                                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Options (comma separated)</label>
-                                                    <input type="text" x-model="field.options_str" @input="updateFieldOptions(field)" placeholder="e.g. 8GB, 16GB, 32GB"
-                                                        class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold outline-none focus:ring-1 focus:ring-blue-500 dark:text-slate-100">
-                                                </div>
-
-                                                <!-- Settings (Required, Unique, etc) -->
-                                                <div class="md:col-span-3 flex items-center gap-4 pt-5" x-show="!['select', 'radio', 'checkbox'].includes(field.type)">
-                                                    <label class="flex items-center gap-2 cursor-pointer">
-                                                        <input type="checkbox" x-model="field.required" class="w-3 h-3 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                                                        <span class="text-[10px] font-bold text-slate-500 uppercase">Required</span>
+                                            <!-- Required Toggle -->
+                                            <div class="md:col-span-2">
+                                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Required</label>
+                                                <div class="flex items-center h-10">
+                                                    <label class="relative inline-flex items-center cursor-pointer">
+                                                        <input type="checkbox" x-model="field.required" class="sr-only peer">
+                                                        <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-slate-600 peer-checked:bg-blue-600"></div>
                                                     </label>
                                                 </div>
                                             </div>
 
-                                            <button @click="removeField(index)" class="mt-7 p-1.5 text-slate-300 hover:text-rose-500 transition-colors">
-                                                <i class="bi bi-trash3 text-sm"></i>
-                                            </button>
+                                            <!-- Width -->
+                                            <div class="md:col-span-3">
+                                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Column Width</label>
+                                                <select x-model="field.width" 
+                                                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500">
+                                                    <option value="100">Full Width (100%)</option>
+                                                    <option value="50">Half Width (50%)</option>
+                                                    <option value="33">One Third (33%)</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Additional Options for Select/Radio/Checkbox -->
+                                            <template x-if="field.type === 'select' || field.type === 'radio' || field.type === 'checkbox'">
+                                                <div class="md:col-span-12">
+                                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Options (Comma separated)</label>
+                                                    <input type="text" x-model="field.options_str" @input="updateFieldOptions(field)" placeholder="e.g. 8GB, 16GB, 32GB"
+                                                        class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500">
+                                                </div>
+                                            </template>
+
+                                            <!-- Placeholder -->
+                                            <div class="md:col-span-12">
+                                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Placeholder Hint (Optional)</label>
+                                                <input type="text" x-model="field.placeholder" placeholder="e.g. Enter RAM size in GB"
+                                                    class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500">
+                                            </div>
                                         </div>
-                                    </template>
-                                </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div x-show="formData.fields.length === 0" class="py-12 border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-3xl text-center">
+                                <p class="text-slate-400 text-sm italic">No fields added yet. Click "Add Field" to begin.</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-                        <button @click="showModal = false" class="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">Cancel</button>
-                        <button @click="saveBlock" :disabled="loading" class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2">
-                            <span x-show="!loading" x-text="modalMode === 'add' ? 'Create Block' : 'Update Block'"></span>
-                            <span x-show="loading"><i class="bi bi-arrow-repeat animate-spin"></i> Processing...</span>
-                        </button>
+                    <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                            <span x-text="formData.fields.length"></span> Fields Defined
+                        </div>
+                        <div class="flex gap-3">
+                            <button @click="showModal = false" class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700">Cancel</button>
+                            <button @click="saveBlock" :disabled="loading" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 flex items-center disabled:opacity-50">
+                                <i class="bi bi-arrow-repeat animate-spin mr-2" x-show="loading"></i>
+                                Save Block
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </template>
         </div>
     </template>
 </div>
@@ -200,30 +215,47 @@ function blockManager() {
         formData: {
             id: '',
             name: '',
-            description: '',
             fields: []
         },
-        openAddModal() {
-            this.modalMode = 'add';
-            this.formData = { id: '', name: '', description: '', fields: [] };
-            this.showModal = true;
-        },
-        openEditModal(block) {
-            this.modalMode = 'edit';
-            const fields = JSON.parse(block.schema || '[]');
-            fields.forEach(f => {
-                if (f.options) f.options_str = f.options.join(', ');
-            });
-            this.formData = { ...block, fields };
+        openModal(mode, data = null) {
+            this.modalMode = mode;
+            if (data) {
+                let schema = [];
+                try {
+                    schema = typeof data.fields_schema === 'string' ? JSON.parse(data.fields_schema) : (data.fields_schema || []);
+                } catch(e) { schema = []; }
+                
+                // Map schema to UI fields
+                const fields = schema.map(f => ({
+                    label: f.label || '',
+                    name: f.name || '',
+                    type: f.type || 'text',
+                    required: !!f.required,
+                    width: f.width || '100',
+                    placeholder: f.placeholder || '',
+                    options: f.options || [],
+                    options_str: (f.options || []).join(', ')
+                }));
+
+                this.formData = {
+                    id: data.id,
+                    name: data.name,
+                    fields: fields
+                };
+            } else {
+                this.formData = { id: '', name: '', fields: [] };
+                this.addField(); // Add one default field
+            }
             this.showModal = true;
         },
         addField() {
             this.formData.fields.push({
-                name: '',
                 label: '',
+                name: '',
                 type: 'text',
-                width: '100%',
                 required: false,
+                width: '100',
+                placeholder: '',
                 options: [],
                 options_str: ''
             });
@@ -232,49 +264,83 @@ function blockManager() {
             this.formData.fields.splice(index, 1);
         },
         updateFieldName(field) {
-            field.label = field.name;
+            if (!field.name || field.name === this.slugify(field.label.slice(0, -1))) {
+                field.name = this.slugify(field.label);
+            }
         },
         updateFieldOptions(field) {
-            field.options = field.options_str.split(',').map(o => o.trim()).filter(o => o !== '');
+            field.options = field.options_str.split(',').map(s => s.trim()).filter(s => s !== '');
+        },
+        slugify(text) {
+            return text.toString().toLowerCase()
+                .replace(/\s+/g, '_')           // Replace spaces with _
+                .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+                .replace(/\-\-+/g, '_')         // Replace multiple - with single _
+                .replace(/^-+/, '')             // Trim - from start of text
+                .replace(/-+$/, '');            // Trim - from end of text
         },
         async saveBlock() {
-            if (!this.formData.name) {
-                Alpine.store('app').addToast('Error', 'Block name is required.', 'error');
+            if (!this.formData.name.trim()) {
+                Alpine.store('app').addToast('Validation', 'Block name is required.', 'error');
                 return;
             }
+
+            if (this.formData.fields.length === 0) {
+                Alpine.store('app').addToast('Validation', 'At least one field is required.', 'error');
+                return;
+            }
+
+            // Validate all fields have labels
+            if (this.formData.fields.some(f => !f.label.trim())) {
+                Alpine.store('app').addToast('Validation', 'All fields must have a label.', 'error');
+                return;
+            }
+
             this.loading = true;
+
+            // Prepare schema for backend
+            const schema = this.formData.fields.map(f => ({
+                label: f.label,
+                name: f.name || this.slugify(f.label),
+                type: f.type,
+                required: f.required,
+                width: f.width,
+                placeholder: f.placeholder,
+                options: (f.type === 'select' || f.type === 'radio' || f.type === 'checkbox') ? f.options : []
+            }));
+
             try {
-                const response = await fetch('index.php?route=equipment_save_block', {
+                const response = await fetch('index.php?route=equipment_block_save', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
                         id: this.formData.id,
                         name: this.formData.name,
-                        description: this.formData.description,
-                        schema: JSON.stringify(this.formData.fields)
+                        fields_schema: JSON.stringify(schema),
+                        csrf_token: '<?php echo $_SESSION['csrf_token']; ?>'
                     })
                 });
                 const result = await response.json();
                 if (result.success) {
                     Alpine.store('app').addToast('Success', result.message, 'success');
-                    window.location.reload();
+                    setTimeout(() => window.location.reload(), 1000);
                 } else {
                     Alpine.store('app').addToast('Error', result.message, 'error');
+                    this.loading = false;
                 }
             } catch (e) {
-                Alpine.store('app').addToast('Error', 'An unexpected error occurred.', 'error');
-            } finally {
+                Alpine.store('app').addToast('Error', 'Failed to save block.', 'error');
                 this.loading = false;
             }
         },
-        async deleteBlock(id) {
-            Alpine.store('app').confirm('Delete Block', 'Are you sure you want to delete this block? This may affect equipment types using it.', async () => {
+        async deleteBlock(id, name) {
+            Alpine.store('app').confirm('Delete Block', `Are you sure you want to delete ${name}? This will NOT delete data from equipment, but the fields will no longer appear in forms.`, async () => {
                 try {
-                    const response = await fetch(`index.php?route=equipment_delete_block&id=${id}`);
+                    const response = await fetch(`index.php?route=equipment_block_delete&id=${id}`);
                     const result = await response.json();
                     if (result.success) {
-                        Alpine.store('app').addToast('Success', result.message, 'success');
-                        window.location.reload();
+                        Alpine.store('app').addToast('Deleted', result.message, 'success');
+                        setTimeout(() => window.location.reload(), 1000);
                     } else {
                         Alpine.store('app').addToast('Error', result.message, 'error');
                     }

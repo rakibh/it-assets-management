@@ -9,7 +9,7 @@ $activeTab = $filters['tab'] ?? 'board';
 
 $statusConfigs = [
     'todo' => ['label' => 'To Do', 'color' => 'bg-slate-100 text-slate-700', 'dot' => 'bg-slate-400'],
-    'doing' => ['label' => 'Doing', 'color' => 'bg-blue-100 text-blue-700', 'dot' => 'bg-blue-50'],
+    'doing' => ['label' => 'Doing', 'color' => 'bg-blue-100 text-blue-700', 'dot' => 'bg-blue-500'],
     'past_due' => ['label' => 'Past Due', 'color' => 'bg-red-100 text-red-700', 'dot' => 'bg-red-500'],
     'done' => ['label' => 'Done', 'color' => 'bg-green-100 text-green-700', 'dot' => 'bg-green-500'],
     'dropped' => ['label' => 'Dropped', 'color' => 'bg-gray-100 text-gray-500', 'dot' => 'bg-gray-400'],
@@ -80,9 +80,9 @@ $priorityColors = [
         <div class="flex flex-wrap items-center gap-3">
             <div class="relative">
                 <i class="bi bi-search absolute left-3 top-2.5 text-slate-400"></i>
-                <input type="text" x-model="filters.search" @input.debounce.500ms="applyFilters(1)" 
+                <input type="text" x-model="filters.search" @input.debounce.500ms="applyFilters" 
                     placeholder="Search title, tags, names..." 
-                    class="pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none w-64 dark:text-slate-100">
+                    class="pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none w-64 dark:text-slate-200">
             </div>
             
             <select x-model="filters.priority" @change="applyFilters(1)" 
@@ -102,7 +102,7 @@ $priorityColors = [
                 <?php endforeach; ?>
             </select>
 
-            <select x-model="sort_option" @change="applySorting(1)" 
+            <select x-model="sort_option" @change="applySorting" 
                 class="px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none dark:text-slate-200 font-bold">
                 <option value="deadline_ASC">Deadline (Soonest)</option>
                 <option value="deadline_DESC">Deadline (Latest)</option>
@@ -319,24 +319,24 @@ function taskManagement() {
         sort_option: `${sortBy}_${sortDir}`,
         totalPages: <?php echo $data['pages']; ?>,
         currentPage: <?php echo $data['currentPage']; ?>,
-        applyFilters(page = 1) {
+        applyFilters() {
             const params = new URLSearchParams(window.location.search);
             params.set('route', 'list_tasks');
             Object.keys(this.filters).forEach(key => {
                 if (this.filters[key]) params.set(key, this.filters[key]);
                 else params.delete(key);
             });
-            params.set('page', page.toString());
+            params.set('page', '1');
             window.location.href = 'index.php?' + params.toString();
         },
-        applySorting(page = 1) {
+        applySorting() {
             const parts = this.sort_option.split('_');
             const dir = parts.pop();
             const field = parts.join('_');
             const params = new URLSearchParams(window.location.search);
             params.set('sort_by', field);
             params.set('sort_dir', dir);
-            params.set('page', page.toString());
+            params.set('page', '1');
             window.location.href = 'index.php?' + params.toString();
         },
         goToPage(page) {
